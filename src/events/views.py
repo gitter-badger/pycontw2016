@@ -1,6 +1,7 @@
+from django.db.models import Prefetch
 from django.views.generic import DetailView, ListView
 
-from proposals.models import TalkProposal
+from proposals.models import TalkProposal, AdditionalSpeaker
 
 from .models import SponsoredEvent
 
@@ -10,6 +11,10 @@ class AcceptedTalkMixin:
         TalkProposal.objects
         .filter(accepted=True)
         .select_related('submitter')
+        .prefetch_related(Prefetch(
+            lookup='additionalspeaker_set',
+            queryset=AdditionalSpeaker.objects.select_related('user'),
+        ))
         .order_by('title')
     )
 
