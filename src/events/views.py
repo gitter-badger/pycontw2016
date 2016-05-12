@@ -1,5 +1,6 @@
 from django.db.models import Prefetch
-from django.views.generic import DetailView, ListView
+from django.http import Http404
+from django.views.generic import DetailView, ListView, RedirectView
 
 from proposals.models import TalkProposal, AdditionalSpeaker
 
@@ -37,6 +38,18 @@ class TalkListView(AcceptedTalkMixin, ListView):
 
 class TalkDetailView(AcceptedTalkMixin, DetailView):
     template_name = 'events/talk_detail.html'
+
+
+class SponsoredEventRedirectView(RedirectView):
+
+    permanent = True
+
+    def get_redirect_url(self, pk):
+        try:
+            event = SponsoredEvent.objects.get(pk=pk)
+        except SponsoredEvent.DoesNotExist:
+            raise Http404
+        return event.get_absolute_url()
 
 
 class SponsoredEventDetailView(DetailView):
